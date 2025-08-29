@@ -1,18 +1,16 @@
 import torch
-import os
 from biome_cnn import ConvNeuralNet
-from dataloader import load_test_dataset_full, simple_dataloader
-path = os.path.dirname(__file__) + "/model.pth"
+from utils import load_test_dataset_full, simple_dataloader, load_model
+
 batch_size = 64
 test_dataset = load_test_dataset_full()
 test_loader = simple_dataloader(test_dataset, batch_size)
 num_classes = len(test_dataset.classes)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = ConvNeuralNet(num_classes) 
-model.load_state_dict(torch.load(path))
-model.eval()
 
+model, _ = load_model()
+model.eval()
 with torch.no_grad():
     correct = 0
     total = 0

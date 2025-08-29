@@ -24,7 +24,7 @@ class ConvNeuralNet(nn.Module):
         out = self.relu2(out)
         out = self.max_pool2(out)
         out = out.reshape(out.size(0), -1)
-        print(out.shape)
+        #print(out.shape)
         out = self.fc1(out)
         out = self.relu3(out)
         out = self.fc2(out)
