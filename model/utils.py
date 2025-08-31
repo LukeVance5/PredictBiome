@@ -2,7 +2,7 @@ import os
 import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from biome_cnn import ConvNeuralNet
+from .biome_cnn import ConvNeuralNet
 dir = os.path.dirname(__file__)
 
 def load_train_dataset_full():
@@ -42,3 +42,13 @@ def load_model():
   model = ConvNeuralNet(model_struct["num_classes"]) 
   model.load_state_dict(model_struct["model_state"])
   return model, model_struct["labels"]
+
+def process_single_image(image):
+  size = 128
+  transform = transforms.Compose([transforms.Resize((size,size)),
+                                     transforms.ToTensor(),
+                                     transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                                          std=[0.5, 0.5, 0.5])
+                                     ])
+  processed = torch.unsqueeze(transform(image),0)
+  return processed
