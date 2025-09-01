@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 interface ProbabilityPer {
   label: string;
   probability: number;
@@ -31,7 +31,9 @@ const FileUpload: React.FC = () => {
       if (Array.isArray(data.probabilities)) {
         const formatted: {name: string; value: number}[] = []
       for (const item of data.probabilities) {
-        formatted.push({"name": item.label, "value": item.probability.toFixed(2)})
+        if (item.probability > 0.05) {
+          formatted.push({"name": item.label, "value": item.probability.toFixed(2)})
+        }
       }
       setChartData(formatted);
       }
@@ -57,12 +59,18 @@ const FileUpload: React.FC = () => {
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-2">Prediction Probabilities</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#4ade80" /> {/* green bars */}
-            </BarChart>
+          <BarChart
+      width={600}
+      height={300}
+      data={chartData}
+      layout="vertical"  // 🔑 makes bars horizontal
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis type="number" />   {/* values */}
+      <YAxis dataKey="name" type="category" /> {/* labels */}
+      <Tooltip />
+      <Bar dataKey="value" fill="#82ca9d" />
+    </BarChart>
           </ResponsiveContainer>
         </div>
       )}
