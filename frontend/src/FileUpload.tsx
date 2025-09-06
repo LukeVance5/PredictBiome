@@ -32,7 +32,7 @@ const FileUpload: React.FC = () => {
         const formatted: {name: string; value: number}[] = []
       for (const item of data.probabilities) {
         if (item.probability > 0.05) {
-          formatted.push({"name": item.label, "value": item.probability.toFixed(2)})
+          formatted.push({"name": item.label, "value": item.probability.toFixed(2)});
         }
       }
       setChartData(formatted);
@@ -44,7 +44,7 @@ const FileUpload: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <>
       <input
         type="file"
         accept="image/*"
@@ -74,7 +74,7 @@ const FileUpload: React.FC = () => {
           </ResponsiveContainer>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

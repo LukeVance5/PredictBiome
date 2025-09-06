@@ -1,31 +1,12 @@
 import torch.nn as nn
+import torchvision.models as models
 
-# Creating a CNN class
+
 class ConvNeuralNet(nn.Module):
-#  Determine what layers and their order in CNN object 
-    def __init__(self, num_classes):
-        super(ConvNeuralNet, self).__init__()
-        self.conv_layer1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3)
-        self.relu1 = nn.ReLU()
-        self.max_pool1 = nn.MaxPool2d(kernel_size = 2, stride = 2)
-        self.conv_layer2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
-        self.relu2 = nn.ReLU()
-        self.max_pool2 = nn.MaxPool2d(kernel_size = 2, stride = 2)
-        self.fc1 = nn.Linear(57600, 128)
-        self.relu3 = nn.ReLU()
-        self.fc2 = nn.Linear(128, num_classes)
-    
-    # Progresses data across layers    
-    def forward(self, x):
-        out = self.conv_layer1(x)
-        out = self.relu1(out)
-        out = self.max_pool1(out)
-        out = self.conv_layer2(out)
-        out = self.relu2(out)
-        out = self.max_pool2(out)
-        out = out.reshape(out.size(0), -1)
-        #print(out.shape)
-        out = self.fc1(out)
-        out = self.relu3(out)
-        out = self.fc2(out)
-        return out
+  def __init__(self, num_classes):
+    super(ConvNeuralNet, self).__init__()
+    self.model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+    in_features = self.model.fc.in_features
+    self.model.fc = nn.Linear(in_features, num_classes)
+  def forward(self, x):
+    return self.model(x)

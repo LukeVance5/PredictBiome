@@ -2,30 +2,57 @@ import os
 import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from .biome_cnn import ConvNeuralNet
+import pickle
+from model.biome_cnn import ConvNeuralNet
 dir = os.path.dirname(__file__)
+
 
 def load_train_dataset_full():
   size = 128
+  file_path = dir + "/means.pth"
+  with open(file_path, 'rb') as file:
+    loaded = pickle.load(file)
   all_transforms = transforms.Compose([transforms.Resize((size,size)),
                                      transforms.ToTensor(),
-                                     transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                          std=[0.5, 0.5, 0.5])
+                                     transforms.Normalize(mean=loaded["mean"],
+                                                          std=loaded["std"])
                                      ])
   train_dataset_raw = datasets.ImageFolder(root=os.path.join(dir, '..', 'dataset/train'), transform = all_transforms)
   return train_dataset_raw
 
 def load_test_dataset_full():
   size = 128
+  file_path = dir + "/means.pth"
+  with open(file_path, 'rb') as file:
+    loaded = pickle.load(file)
   all_transforms = transforms.Compose([transforms.Resize((size,size)),
                                      transforms.ToTensor(),
-                                     transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                          std=[0.5, 0.5, 0.5])
+                                     transforms.Normalize(mean=loaded["mean"],
+                                                          std=loaded["std"])
                                      ])
   test_dataset_raw = datasets.ImageFolder(root=os.path.join(dir, '..', 'dataset/test'), transform = all_transforms)
   return test_dataset_raw
   
- 
+def calculate_means():
+  size = 128
+  batch_size = 32
+  all_transforms = transforms.Compose([transforms.Resize((size,size)),
+                                     transforms.ToTensor()])
+  train_dataset_raw = datasets.ImageFolder(root=os.path.join(dir, '..', 'dataset/train'), transform = all_transforms)
+  loader = simple_dataloader(train_dataset_raw,batch_size)
+  channels_sum, channels_squared_sum, num_batches = 0,0,0
+  for data, _ in loader:
+    channels_sum += torch.mean(data, dim=[0,2,3])
+    channels_squared_sum += torch.mean(data**2, dim=[0,2,3])
+    num_batches += 1
+  mean = channels_sum / num_batches
+  std = (channels_squared_sum/num_batches - mean**2)**0.5
+  print(mean)
+  print(std)  
+  file_path = dir + "/means.pth"
+  with open(file_path, 'wb') as file_handler:
+    pickle.dump({"mean": mean, "std": std}, file_handler)
+
 def simple_dataloader(dataset, batch_size):
 
   return torch.utils.data.DataLoader(dataset = dataset,
@@ -44,11 +71,14 @@ def load_model():
   return model, model_struct["labels"]
 
 def process_single_image(image):
+  file_path = dir + "/means.pth"
+  with open(file_path, 'rb') as file:
+    loaded = pickle.load(file)
   size = 128
   transform = transforms.Compose([transforms.Resize((size,size)),
                                      transforms.ToTensor(),
-                                     transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                          std=[0.5, 0.5, 0.5])
+                                     transforms.Normalize(mean= loaded["mean"],
+                                                          std= loaded["std"])
                                      ])
   processed = torch.unsqueeze(transform(image),0)
   return processed

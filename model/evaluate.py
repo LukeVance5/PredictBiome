@@ -1,9 +1,9 @@
 import torch
 import torch.nn.functional as F
-from biome_cnn import ConvNeuralNet
-from utils import load_test_dataset_full, simple_dataloader, load_model
+from model.biome_cnn import ConvNeuralNet
+from model.utils import load_test_dataset_full, simple_dataloader, load_model
 
-batch_size = 64
+batch_size = 32
 test_dataset = load_test_dataset_full()
 test_loader = simple_dataloader(test_dataset, batch_size)
 num_classes = len(test_dataset.classes)
